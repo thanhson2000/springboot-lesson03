@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountSaveRequest {
     String username;
+
     @PasswordAnnotation
-            @NotNull
     String password;
 }

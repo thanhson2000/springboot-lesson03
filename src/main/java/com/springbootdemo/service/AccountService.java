@@ -1,14 +1,18 @@
 package com.springbootdemo.service;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import com.springbootdemo.common.TokenHandler;
 import com.springbootdemo.dto.request.AccountSaveRequest;
 import com.springbootdemo.dto.response.AccountResponseDto;
 import com.springbootdemo.dto.response.AuthenticationResponseDto;
 import com.springbootdemo.entity.Account;
+import com.springbootdemo.entity.InValidToken;
 import com.springbootdemo.enums.Permission;
 import com.springbootdemo.enums.Role;
 import com.springbootdemo.mapper.AccountMapper;
 import com.springbootdemo.repository.AccountRepository;
+import com.springbootdemo.repository.InValidTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,12 +20,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.text.ParseException;
+import java.util.*;
 
 @Service
 public class AccountService {
@@ -38,14 +41,36 @@ public class AccountService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private InValidTokenRepository inValidTokenRepository;
+
     public Account register(AccountSaveRequest request){
-        Optional<Account> byUsername = accountRepository.findByUsername(request.getUsername());
-        if (! byUsername.isEmpty()){
-            throw new RuntimeException("帳號已存在");
+
+        try {
+            Optional<Account> byUsername = accountRepository.findByUsername(request.getUsername());
+            if (byUsername.isPresent()) {
+                throw new RuntimeException("帳號已存在");
+            }
+            Account account = accountMapper.toAccount(request);
+            account.setPassword(passwordEncoder.encode(request.getPassword()));
+            account.setPermissions(new HashSet<>());
+            account.setRoles(new HashSet<>());
+            return accountRepository.save(account);
+        } catch (Exception e) {
+            System.err.println("=== 錯誤詳情 ===");
+            System.err.println("錯誤類型: " + e.getClass().getName());
+            System.err.println("錯誤消息: " + e.getMessage());
+            e.printStackTrace();
+
+            // 查找根本原因
+            Throwable cause = e;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+                System.err.println("根本原因: " + cause.getClass().getName() + " - " + cause.getMessage());
+            }
+
+            throw new RuntimeException("註冊失敗: " + e.getMessage(), e);
         }
-        Account account = accountMapper.toAccount(request);
-        account.setPassword(passwordEncoder.encode(request.getPassword()));
-        return accountRepository.save(account);
     }
 
     public AuthenticationResponseDto login(AccountSaveRequest request){
@@ -88,5 +113,12 @@ public class AccountService {
         }
         Account account = byAccount.get();
         return accountMapper.toResponseDto(account);
+    }
+
+    public void logout(String token) throws ParseException {
+        JWTClaimsSet jwtClaimsSet = tokenHandler.getSignedJWT(token).getJWTClaimsSet();
+        String jwtid = jwtClaimsSet.getJWTID();
+        Date expirationTime = jwtClaimsSet.getExpirationTime();
+        inValidTokenRepository.save(new InValidToken(jwtid,expirationTime));
     }
 }

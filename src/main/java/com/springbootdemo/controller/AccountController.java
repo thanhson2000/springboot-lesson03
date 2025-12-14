@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+
 @RestController
 @RequestMapping("/account")
 public class AccountController {
@@ -29,6 +31,15 @@ public class AccountController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid AccountSaveRequest request){
         return ResponseEntity.ok(accountService.login(request));
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String auth) throws ParseException {
+        if (auth.startsWith("Bearer ")){
+            String token = auth.substring(7);
+            accountService.logout(token);
+        }
+        return ResponseEntity.ok().body(new APIResponseDto(Code.LOGOUT_SUCCESS,"推出登錄成功"));
     }
 
     @GetMapping("/getall")

@@ -26,8 +26,6 @@ public class PasswordValidator implements ConstraintValidator<PasswordAnnotation
     public boolean isValid(String password, ConstraintValidatorContext context) {
         password = password.trim();
 
-        System.out.println(password);
-
         // 檢查密碼長度
         if (password.length() < MIN_PASS || password.length()> MAX_PASS){
             // 禁用默認消息

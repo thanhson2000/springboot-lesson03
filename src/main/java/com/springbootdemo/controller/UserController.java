@@ -5,7 +5,6 @@ import com.springbootdemo.common.Result;
 import com.springbootdemo.dto.request.UserSaveRequest;
 import com.springbootdemo.dto.request.UserUpdateRequest;
 import com.springbootdemo.entity.User;
-import com.springbootdemo.mapper.UserMapper;
 import com.springbootdemo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

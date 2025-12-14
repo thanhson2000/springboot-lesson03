@@ -1,6 +1,7 @@
 package com.springbootdemo.config;
 
 import com.springbootdemo.enums.Role;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,17 +11,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.
+        BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.crypto.spec.SecretKeySpec;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -39,8 +35,11 @@ public class SecurityConfig {
 
     private final String[] hasRole_patterns = {"/users/getAll"};
 
-    @Value("${jwt.signKey}")
-    private String signedKey;
+    @Autowired
+    private CustomJwtDecoder customJwtDecoder;
+
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -56,8 +55,9 @@ public class SecurityConfig {
 
         // 處理請求頭傳遞的Authentication , 此方法要求Auth Type為Oauth2.0 或者 Bearer Token
         http.oauth2ResourceServer( oauth2ResourceServerConfigurer ->
-                oauth2ResourceServerConfigurer.jwt(jwtConfigurer -> jwtConfigurer.decoder(decoder())
+                oauth2ResourceServerConfigurer.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthConverter()))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
         );
         return http.build();
     }
@@ -71,9 +71,4 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-    @Bean
-    public JwtDecoder decoder(){
-        SecretKeySpec secretKeySpec = new SecretKeySpec(signedKey.getBytes(), "HS256");
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS256).build();
-    }
 }

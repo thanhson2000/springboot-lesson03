@@ -12,5 +12,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults( level = AccessLevel.PRIVATE)
 public class APIResponseDto {
     int code;
-    int msg;
+    String msg;
 }

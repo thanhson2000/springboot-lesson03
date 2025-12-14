@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Component
 public class TokenHandler {
@@ -27,12 +28,12 @@ public class TokenHandler {
 
         Date now = new Date();
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
-        Object buildScope;
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(account.getUsername())
                 .issuer("localhost")
                 .issueTime(now)
                 .expirationTime(new Date(now.getTime()+ 60*60*1000))
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope",buildScope(account))
                 .build();
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -58,11 +59,17 @@ public class TokenHandler {
         return stringJoiner.toString();
     }
 
-    public boolean checkToken(String token){
+
+    public SignedJWT getSignedJWT(String token){
         try {
             JWSVerifier jwsVerifier = new MACVerifier(signKey);
-            SignedJWT parse = SignedJWT.parse(token);
-            return parse.verify(jwsVerifier) && parse.getJWTClaimsSet().getExpirationTime().after(new Date());
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            if ( ! signedJWT.verify(jwsVerifier) ){
+                throw new RuntimeException("token錯誤");
+            }else if(signedJWT.getJWTClaimsSet().getExpirationTime().before(new Date())) {
+                throw new RuntimeException("token已過期");
+            }
+            return signedJWT;
         }catch (JOSEException e){
             log.error("signKey有問題",e);
             throw new RuntimeException("signKey有問題");

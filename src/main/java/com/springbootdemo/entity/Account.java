@@ -27,8 +27,6 @@ public class Account {
     @Column(unique = true, nullable = false)
     String username;
 
-    @PasswordAnnotation
-            @NotNull
     String password;
 
     @ElementCollection(fetch = FetchType.EAGER)

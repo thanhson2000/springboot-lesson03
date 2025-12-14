@@ -12,9 +12,17 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    properties.hibernate.format_sql: true
 jwt:
   signKey: "e686bbe6f06264e6fe8e44faac832260426cdf5f81a612682c5c69eb4773fbd6"
 
 bcrypt:
   password:
     length: 10
+
+
+# 顯示詳細錯誤信息
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    hibernate.type.descriptor.sql.BasicBinder: TRACE
