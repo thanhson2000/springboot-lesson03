@@ -12,4 +12,5 @@ public class Code {
     public static final int RUNTIME_ERR = 5000;
     public static final int METHOD_ARGUMENT_NOT_VALID = 5001;
     public static final int LOGOUT_SUCCESS = 1005;
+    public static final int AUTHORIZATION_FAILED = 5002;
 }

@@ -121,4 +121,17 @@ public class AccountService {
         Date expirationTime = jwtClaimsSet.getExpirationTime();
         inValidTokenRepository.save(new InValidToken(jwtid,expirationTime));
     }
+
+    public String refreshToken(String token) throws ParseException {
+        SignedJWT signedJWT = tokenHandler.getSignedJWT(token);
+        JWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
+        String jwtId = jwtClaimsSet.getJWTID();
+        Date expirationTime = jwtClaimsSet.getExpirationTime();
+        inValidTokenRepository.save(new InValidToken(jwtId,expirationTime));
+
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+
+        Account account = accountRepository.findByUsername(username).orElseThrow();
+        return tokenHandler.generate(account);
+    }
 }

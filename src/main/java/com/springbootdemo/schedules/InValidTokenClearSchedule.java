@@ -20,7 +20,7 @@ public class InValidTokenClearSchedule {
     private InValidTokenRepository inValidTokenRepository;
 
     @Transactional
-    @Scheduled(cron = "0 0 8 * * ?")
+    @Scheduled(cron = "0 40 20 * * ?")
     public void clearExpiredToken(){
         log.info("---開始清理無效token");
 

@@ -1,16 +1,26 @@
 package com.springbootdemo.service;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.springbootdemo.common.TokenHandler;
 import com.springbootdemo.dto.request.UserSaveRequest;
 import com.springbootdemo.dto.request.UserUpdateRequest;
+import com.springbootdemo.entity.Account;
+import com.springbootdemo.entity.InValidToken;
 import com.springbootdemo.entity.User;
 import com.springbootdemo.mapper.UserMapper;
+import com.springbootdemo.repository.AccountRepository;
+import com.springbootdemo.repository.InValidTokenRepository;
 import com.springbootdemo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -20,6 +30,12 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private TokenHandler tokenHandler;
+    @Autowired
+    private InValidTokenRepository inValidTokenRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     public User save(UserSaveRequest request){
         if (findByUserName(request.getUsername())){

@@ -7,6 +7,7 @@ import com.springbootdemo.dto.request.AccountBindingDto;
 import com.springbootdemo.dto.request.AccountSaveRequest;
 import com.springbootdemo.dto.response.APIResponseDto;
 import com.springbootdemo.dto.response.AccountResponseDto;
+import com.springbootdemo.dto.response.AuthenticationResponseDto;
 import com.springbootdemo.enums.Role;
 import com.springbootdemo.service.AccountService;
 import jakarta.validation.Valid;
@@ -24,37 +25,47 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid AccountSaveRequest request){
+    public ResponseEntity<?> register(@RequestBody @Valid AccountSaveRequest request) {
         return ResponseEntity.ok(accountService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid AccountSaveRequest request){
+    public ResponseEntity<?> login(@RequestBody @Valid AccountSaveRequest request) {
         return ResponseEntity.ok(accountService.login(request));
     }
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization") String auth) throws ParseException {
-        if (auth.startsWith("Bearer ")){
+        if (auth.startsWith("Bearer ")) {
             String token = auth.substring(7);
             accountService.logout(token);
         }
-        return ResponseEntity.ok().body(new APIResponseDto(Code.LOGOUT_SUCCESS,"推出登錄成功"));
+        return ResponseEntity.ok().body(new APIResponseDto(Code.LOGOUT_SUCCESS, "推出登錄成功"));
     }
 
     @GetMapping("/getall")
-    public ResponseEntity<?> getAll(@Param("page") int page, @Param("size") int size){
-        return ResponseEntity.ok(new Result<>(Code.SELECTED_SUCCESS,"查詢成功",accountService.getAll(page,size)));
+    public ResponseEntity<?> getAll(@Param("page") int page, @Param("size") int size) {
+        return ResponseEntity.ok(new Result<>(Code.SELECTED_SUCCESS, "查詢成功", accountService.getAll(page, size)));
     }
 
     @PostMapping("/binding")
-    public ResponseEntity<?> binding(@RequestBody AccountBindingDto request){
-        accountService.bindingRole(request.getUsername(),request.getRoles(),request.getPermissions());
-        return ResponseEntity.ok(new ErrorResult(Code.UPDATED_SUCCESS,"修改成功"));
+    public ResponseEntity<?> binding(@RequestBody AccountBindingDto request) {
+        accountService.bindingRole(request.getUsername(), request.getRoles(), request.getPermissions());
+        return ResponseEntity.ok(new ErrorResult(Code.UPDATED_SUCCESS, "修改成功"));
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<?> getByUsername(@PathVariable String username){
-        return ResponseEntity.ok(new Result<>(Code.SELECTED_SUCCESS,"查詢成功",accountService.getByUsername(username)));
+    public ResponseEntity<?> getByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(new Result<>(Code.SELECTED_SUCCESS, "查詢成功", accountService.getByUsername(username)));
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String auth) throws ParseException {
+        if (! auth.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body(new APIResponseDto(Code.AUTHORIZATION_FAILED, "Authorization不匹配"));
+        }
+        String token = auth.substring(7);
+        String newToken = accountService.refreshToken(token);
+        return ResponseEntity.ok().body(new AuthenticationResponseDto(true, newToken));
     }
 }
