@@ -2,7 +2,6 @@ package com.springbootdemo.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
 import java.util.regex.Pattern;
 
 public class PasswordValidator implements ConstraintValidator<PasswordAnnotation, String> {
