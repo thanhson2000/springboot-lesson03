@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springbootdemo.controller.AccountController;
 import com.springbootdemo.dto.request.AccountSaveRequest;
+import com.springbootdemo.dto.response.AccountResponseDto;
 import com.springbootdemo.dto.response.AuthenticationResponseDto;
 import com.springbootdemo.entity.Account;
+import com.springbootdemo.mapper.AccountMapper;
 import com.springbootdemo.repository.AccountRepository;
 import com.springbootdemo.service.AccountService;
 import com.springbootdemo.service.UserService;
@@ -18,10 +20,13 @@ import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.TestPropertySources;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,6 +54,9 @@ public class AccountControllerTest {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private AccountMapper accountMapper;
 
     private Account account;
     private AccountSaveRequest accountSaveRequest;
@@ -138,4 +146,17 @@ public class AccountControllerTest {
         log.info("登錄password只有數字 登錄失敗 ---> 測試通過");
     }
 
+    @WithMockUser(roles = "ADMIN")
+    @Test
+    void testGetAll_WithADMIN_Success() throws Exception{
+        Page<AccountResponseDto> expectedResult = accountMapper.toPageDto(accountRepository.getAll(0, 5, PageRequest.of(0, 5, Sort.by("id").ascending())));
+       // when(accountService.getAll(0,5)).thenReturn(expectedResult);
+        mockMvc.perform(MockMvcRequestBuilders.get("/account/getall")
+                .param("page","0")
+                .param("size","5"))
+                .andExpectAll(MockMvcResultMatchers.status().isOk(),
+                        MockMvcResultMatchers.jsonPath("$.code").value(1000),
+                        MockMvcResultMatchers.jsonPath("$.data").value(expectedResult));
+        log.info("ADMIN權限獲取列表成功");
+    }
 }
