@@ -9,8 +9,8 @@ import lombok.experimental.FieldDefaults;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults( level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class APIResponseDto {
-    int code;
-    String msg;
+  int code;
+  String msg;
 }

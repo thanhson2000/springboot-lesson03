@@ -1,18 +1,20 @@
 package com.springbootdemo.validator;
 
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {PasswordValidator.class})
 public @interface PasswordAnnotation {
-    String message() default "密碼格式不正確，長度8～16個字符，包含數字、英文字母、特殊符號";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
+  String message() default "密碼格式不正確，長度8～16個字符，包含數字、英文字母、特殊符號";
+
+  Class<?>[] groups() default {};
+
+  Class<? extends Payload>[] payload() default {};
 }

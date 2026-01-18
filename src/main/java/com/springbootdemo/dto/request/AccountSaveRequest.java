@@ -1,7 +1,7 @@
 package com.springbootdemo.dto.request;
 
 import com.springbootdemo.validator.PasswordAnnotation;
-import jakarta.validation.constraints.NotNull;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +13,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountSaveRequest {
-    String username;
+  String username;
 
-    @PasswordAnnotation
-    String password;
+  @PasswordAnnotation String password;
 }
