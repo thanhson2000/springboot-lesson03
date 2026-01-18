@@ -28,6 +28,13 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <sonar.host.url>http://localhost:9000</sonar.host.url>
+        <sonar.projectKey>demo-devteria</sonar.projectKey>
+        <sonar.java.source>17</sonar.java.source>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+
     </properties>
     <dependencies>
         <dependency>
@@ -104,63 +111,16 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/com.diffplug.spotless/spotless-maven-plugin -->
-        <dependency>
-            <groupId>com.diffplug.spotless</groupId>
-            <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.1.0</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-            <!--			<plugin>-->
-            <!--				<groupId>org.springframework.boot</groupId>-->
-            <!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
-            <!--				<configuration>-->
-            <!--					<excludes>-->
-            <!--						<exclude>-->
-            <!--							<groupId>org.projectlombok</groupId>-->
-            <!--							<artifactId>lombok</artifactId>-->
-            <!--						</exclude>-->
-            <!--					</excludes>-->
-            <!--				</configuration>-->
-            <!--			</plugin>-->
-            <!--			<plugin>-->
-            <!--				<groupId>org.apache.maven.plugins</groupId>-->
-            <!--				<artifactId>maven-compiler-plugin</artifactId>-->
-            <!--				<version>3.14.1</version>-->
-            <!--				<configuration>-->
-            <!--					<source>21</source>-->
-            <!--					<target>21</target>-->
-            <!--					<annotationProcessorPaths>-->
-            <!--						<path>-->
-            <!--							<groupId>org.projectlombok</groupId>-->
-            <!--							<artifactId>lombok</artifactId>-->
-            <!--							<version>1.18.38</version>-->
-            <!--						</path>-->
-            <!--						<path>-->
-            <!--							<groupId>org.projectlombok</groupId>-->
-            <!--							<artifactId>lombok-mapstruct-binding</artifactId>-->
-            <!--							<version>1.18.38</version>-->
-            <!--						</path>-->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>4.0.0.4121</version>
+            </plugin>
 
-            <!--						<path>-->
-            <!--							<groupId>org.mapstruct</groupId>-->
-            <!--							<artifactId>mapstruct-processor</artifactId>-->
-            <!--							<version>1.6.3</version>-->
-            <!--						</path>-->
-
-            <!--					</annotationProcessorPaths>-->
-            <!--					<compilerArgs>-->
-            <!--						<arg>-Amapstruct.suppressGeneratorTimestamp=true</arg>-->
-            <!--						<arg>-Amapstruct.verbose=true</arg>-->
-            <!--						<arg>-Amapstruct.defaultComponentModel=spring</arg>-->
-            <!--					</compilerArgs>-->
-            <!--				</configuration>-->
-            <!--			</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
